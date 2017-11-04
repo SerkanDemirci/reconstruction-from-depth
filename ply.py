@@ -60,6 +60,9 @@ class PLY(object):
         vertex_color = color == 'vertex'
         texture_mapped = color == 'texture'
         
+        if (vertex_color == False and texture_mapped == False):
+            raise Exception("Incorrect color type".format(name))
+
         with open(path, 'w') as fp:
             fp.write("ply\n");
             fp.write("format ascii 1.0\n");

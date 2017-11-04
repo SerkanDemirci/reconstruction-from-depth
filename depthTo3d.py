@@ -30,6 +30,7 @@ def parse_args():
     
     parser.add_argument('-m','--mesh', action='store_true', help='Reconstruct mesh')
     parser.add_argument('-s', '--step', type=int, help='Step size', default=1)
+    parser.add_argument('-c', '--color', type=str, help='Color type', default='vertex' , choices=['vertex','texture'])
     args = parser.parse_args()
 
     return args
@@ -75,7 +76,7 @@ print("Camera intrinsic matrix:\n{}".format(camera_params))
 print("Reconstructing...")
 scene = reconstruct.reconstruct3d(image,depthmap,camera_params,step=args.step,mesh=args.mesh)
 
-print("Reconstruction completed. Saving image...")
-scene.save(args.output)
+print("Reconstruction completed. Saving model...")
+scene.save(args.output,color=args.color)
 print("Done")
 
