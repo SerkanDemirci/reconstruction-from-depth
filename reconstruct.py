@@ -28,10 +28,19 @@ def reconstruct3d(image,depth_map,camera_parameters,**kwargs):
             into a point in the cloud (default 1)
     mesh -- If True, resulting Ply object will contain faces,
             Otherwise it will only contain vertices
+    
+    transformation -- 4x4 matrix that represents a transformation
+            Transforms all points with given transformation
+            If None, transformation is not applied (None = Identity)
     """ 
     
     step = kwargs.pop('step', 1)
-    mesh = kwargs.pop('mesh', True)
+    mesh = kwargs.pop('mesh', False)
+    transformation = kwargs.pop('transformation', None)
+    
+    if (transformation is None):
+        transformation = np.identity(4)
+    
     
     scene = ply.PLY()
     
@@ -55,10 +64,15 @@ def reconstruct3d(image,depth_map,camera_parameters,**kwargs):
             Y = Z * y
             X = Z * x
             
-            p = ply.Vertex([X ,Y , Z]) #TODO: READ COLOR FROM ORIGINAL IMAGE
+            transformed_point = np.matmul(transformation, np.array([X, Y, Z, 1]))
+            transformed_point = transformed_point / transformed_point[3]
+            
+            p = ply.Vertex(transformed_point[0:3].tolist()) #TODO: READ COLOR FROM ORIGINAL IMAGE
             p.r = image[v,u,0] / 255.0
             p.g = image[v,u,1] / 255.0
             p.b = image[v,u,2] / 255.0
+            
+            p.texture_coordinates = [u / float(image_width) ,v / float(image_height)]
             
             scene.add_vertex(p)
             
@@ -73,7 +87,7 @@ def reconstruct3d(image,depth_map,camera_parameters,**kwargs):
                                  points[u + 1][v + 1],
                                  points[u    ][v + 1],
                                  ])
-    
+
                 scene.add_face(face)
             
     return scene

@@ -1,8 +1,9 @@
 class Vertex():
-    def __init__(self, position = [0, 0, 0], color = [0, 0, 0]):
+    def __init__(self, position = [0, 0, 0], color = [0, 0, 0], texture_coordinates= [0 ,0]):
         self.position = position[:]
         self.color    = color[:]
         self.index    = -1
+        self.texture_coordinates = texture_coordinates
         
     def _set_position(self,d, value):
         self.position[d] = value
@@ -19,9 +20,10 @@ class Vertex():
     b = property(lambda self: self.color[2], lambda self, value: self._set_color(2, value));
     
 class Face():
-    def __init__(self, vertices):
+    def __init__(self, vertices, texture_coordinates = None):
         self.vertices = vertices
         self.index  = -1
+        
     
 class PLY(object):
     def __init__(self):
@@ -52,7 +54,12 @@ class PLY(object):
             
         return face.index
 
-    def save(self, path, color = True):
+    def save(self, path, **kwargs):
+        color = kwargs.pop('color', 'vertex')
+        
+        vertex_color = color == 'vertex'
+        texture_mapped = color == 'texture'
+        
         with open(path, 'w') as fp:
             fp.write("ply\n");
             fp.write("format ascii 1.0\n");
@@ -64,10 +71,14 @@ class PLY(object):
             fp.write("property float y\n")
             fp.write("property float z\n")
 
-            if (color):
+            if (vertex_color):
                 fp.write("property uchar red\n")
                 fp.write("property uchar green\n")
                 fp.write("property uchar blue\n")
+
+            if (texture_mapped):
+                fp.write("property float s\n")
+                fp.write("property float t\n")
 
             # Face Definition
             if (len(self.faces) > 0):
@@ -79,7 +90,7 @@ class PLY(object):
             for vertex in self.vertices:
                 fp.write("{} {} {} ".format(vertex.x, vertex.y, vertex.z));
 
-                if (color):
+                if (vertex_color):
                     r = max(0, min(1, vertex.r))
                     g = max(0, min(1, vertex.g))
                     b = max(0, min(1, vertex.b))
@@ -89,6 +100,10 @@ class PLY(object):
                     b = int(255 * b)
 
                     fp.write("{} {} {}".format(r, g, b));
+                    
+                if (texture_mapped):
+                    fp.write("{} {}".format(vertex.texture_coordinates[0], 1 - vertex.texture_coordinates[1]))
+                            
 
                 fp.write("\n");
                 
@@ -97,5 +112,6 @@ class PLY(object):
                     fp.write("{} ".format(len(face.vertices)))
                     for vertex in face.vertices:
                         fp.write("{} ".format(vertex.index))
+                        
                     fp.write("\n")
 
