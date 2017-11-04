@@ -23,8 +23,8 @@ $ python depthTo3d.py sofa.jpg sofa_depth.png s.ply 1148.93617021 1150.38461538 
 ## Future Works
 
 - [x] Use texture mapping 
-- [] Smooth generated meshes
-- [] Estimate position of the lights in the scene
-- [] Estimate material properties
-- [] Extract depth using single image
+- [ ] Smooth generated meshes
+- [ ] Estimate position of the lights in the scene
+- [ ] Estimate material properties
+- [ ] Extract depth using single image
 
