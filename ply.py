@@ -4,7 +4,7 @@ class Vertex():
         self.color    = color[:]
         self.index    = -1
         self.texture_coordinates = texture_coordinates
-        
+
     def _set_position(self,d, value):
         self.position[d] = value
 
@@ -18,18 +18,18 @@ class Vertex():
     r = property(lambda self: self.color[0], lambda self, value: self._set_color(0, value));
     g = property(lambda self: self.color[1], lambda self, value: self._set_color(1, value));
     b = property(lambda self: self.color[2], lambda self, value: self._set_color(2, value));
-    
+
 class Face():
     def __init__(self, vertices, texture_coordinates = None):
         self.vertices = vertices
         self.index  = -1
-        
-    
+
+
 class PLY(object):
     def __init__(self):
         self.vertices = []
         self.faces  = []
-        
+
     def add_vertex(self, vertex):
         # Check First time adding vertex
         if (vertex.index == -1):
@@ -39,9 +39,9 @@ class PLY(object):
         else:
             #Else update the vertex
             self.vertices[vertex.index] = vertex
-        
+
         return vertex.index
-            
+
     def add_face(self, face):
         # Check First time adding vertex
         if (face.index == -1):
@@ -51,22 +51,22 @@ class PLY(object):
         else:
             #Else update the vertex
             self.faces[face.index] = face
-            
+
         return face.index
 
     def save(self, path, **kwargs):
         color = kwargs.pop('color', 'vertex')
-        
+
         vertex_color = color == 'vertex'
         texture_mapped = color == 'texture'
-        
+
         if (vertex_color == False and texture_mapped == False):
             raise Exception("Incorrect color type".format(name))
 
         with open(path, 'w') as fp:
             fp.write("ply\n");
             fp.write("format ascii 1.0\n");
-            
+
             # Vertex Definition
             fp.write("element vertex {}\n".format(len(self.vertices)))
 
@@ -87,7 +87,7 @@ class PLY(object):
             if (len(self.faces) > 0):
                 fp.write("element face {}\n".format(len(self.faces)))
                 fp.write("property list uchar int vertex_index\n")
-                
+
             fp.write("end_header\n")
 
             for vertex in self.vertices:
@@ -103,18 +103,17 @@ class PLY(object):
                     b = int(255 * b)
 
                     fp.write("{} {} {}".format(r, g, b));
-                    
+
                 if (texture_mapped):
                     fp.write("{} {}".format(vertex.texture_coordinates[0], 1 - vertex.texture_coordinates[1]))
-                            
+
 
                 fp.write("\n");
-                
+
             if (len(self.faces) > 0):
                 for face in self.faces:
                     fp.write("{} ".format(len(face.vertices)))
                     for vertex in face.vertices:
                         fp.write("{} ".format(vertex.index))
-                        
-                    fp.write("\n")
 
+                    fp.write("\n")
